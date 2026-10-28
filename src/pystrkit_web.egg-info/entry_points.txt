@@ -1,0 +1,2 @@
+[console_scripts]
+pystrkit-web = pystrkit_web.__main__:main

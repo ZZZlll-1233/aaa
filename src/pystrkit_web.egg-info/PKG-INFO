@@ -1,0 +1,29 @@
+Metadata-Version: 2.4
+Name: pystrkit-web
+Version: 0.1.0
+Summary: pystrkit 的 Web 界面与 REST API 层，零第三方依赖
+Author-email: YOUR_NAME <you@example.com>
+License: Apache-2.0
+Project-URL: Homepage, https://gitee.com/YOUR_USER/pystrkit-web
+Project-URL: Repository, https://gitee.com/YOUR_USER/pystrkit-web
+Project-URL: Issues, https://gitee.com/YOUR_USER/pystrkit-web/issues
+Keywords: chinese,text,mask,rmb,web,gitee
+Classifier: Development Status :: 3 - Alpha
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Text Processing :: Linguistic
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: pystrkit>=0.1.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0; extra == "dev"
+Requires-Dist: ruff>=0.4; extra == "dev"
+Requires-Dist: mypy>=1.8; extra == "dev"

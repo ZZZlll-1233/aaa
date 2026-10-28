@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pystrkit-web"
+version = "0.1.0"
+description = "pystrkit 的 Web 界面与 REST API 层，零第三方依赖"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+authors = [{ name = "YOUR_NAME", email = "you@example.com" }]
+keywords = ["chinese", "text", "mask", "rmb", "web", "gitee"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Text Processing :: Linguistic",
+]
+# 唯一第三方依赖就是 pystrkit 本身，Web 层不引入任何框架
+dependencies = ["pystrkit>=0.1.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "pytest-cov>=4.0", "ruff>=0.4", "mypy>=1.8"]
+
+[project.urls]
+Homepage = "https://gitee.com/YOUR_USER/pystrkit-web"
+Repository = "https://gitee.com/YOUR_USER/pystrkit-web"
+Issues = "https://gitee.com/YOUR_USER/pystrkit-web/issues"
+
+[project.scripts]
+pystrkit-web = "pystrkit_web.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+pystrkit_web = ["static/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+pythonpath = ["src"]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["B008"]
+
+[tool.mypy]
+files = ["src", "tests"]
+strict = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = ["test_api", "test_server"]
+disallow_untyped_defs = false

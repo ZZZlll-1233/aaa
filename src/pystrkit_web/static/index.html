@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pystrkit-web · 中文文本处理工作台</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<header>
+  <div class="brand">pystrkit<span>-web</span>
+    <small>中文文本处理 · 脱敏 · 人民币大写</small>
+  </div>
+  <div class="status">
+    <span class="dot" id="dot"></span>
+    <span id="statusText">正在连接后端…</span>
+  </div>
+</header>
+
+<main>
+  <nav class="tabs">
+    <button data-tab="text" class="on">文本处理</button>
+    <button data-tab="mask">脱敏</button>
+    <button data-tab="money">金额大写</button>
+    <button data-tab="batch">批量处理</button>
+    <button data-tab="api">API 文档</button>
+  </nav>
+
+  <!-- ===================== 文本处理 ===================== -->
+  <section class="page on" id="page-text">
+
+    <div class="card" data-tool data-ep="/api/text/truncate">
+      <h3>按显示宽度截断 <code>POST /api/text/truncate</code></h3>
+      <p class="desc">中文等全角字符按 2 个宽度计。截断后总宽度保证不超过设定值。</p>
+      <textarea data-arg="text" id="truncText">中文文本处理工具库，一个零依赖的 Python 库</textarea>
+      <div class="row" style="margin-top:10px">
+        <div class="narrow">
+          <label><b>宽度</b></label>
+          <input type="number" data-arg="width" value="12" min="1" max="10000">
+        </div>
+        <div class="narrow">
+          <label><b>省略符</b></label>
+          <input type="text" data-arg="suffix" value="…">
+        </div>
+        <div style="flex:2 1 200px">
+          <label>示例</label>
+          <div class="chips">
+            <span class="chip" data-fill="truncText" data-value="中文文本处理工具库">短中文</span>
+            <span class="chip" data-fill="truncText" data-value="Hello world, this is a long English sentence.">长英文</span>
+            <span class="chip" data-fill="truncText" data-value="中英 mixed 混排的文本 sample">中英混排</span>
+          </div>
+        </div>
+      </div>
+      <div class="out" data-out="result"></div>
+      <div class="meta" data-meta="result_width:结果宽度,truncated:是否被截断"></div>
+      <div class="err" data-err></div>
+    </div>
+
+    <div class="card" data-tool data-ep="/api/text/count">
+      <h3>中英混排字数统计 <code>POST /api/text/count</code></h3>
+      <p class="desc">每个汉字算 1 字，每个英文单词算 1 词，标点与空白不计数。</p>
+      <textarea data-arg="text" id="countText">Python 是最好的语言</textarea>
+      <div class="chips">
+        <span class="chip" data-fill="countText" data-value="你好, world">中英混排</span>
+        <span class="chip" data-fill="countText" data-value="这是一段纯中文的文本内容">纯中文</span>
+      </div>
+      <div class="out" data-out="words">—</div>
+      <div class="meta" data-meta="words:字数/词数,chars:字符数,width:显示宽度"></div>
+      <div class="err" data-err></div>
+    </div>
+
+    <div class="card" data-tool data-ep="/api/text/width">
+      <h3>显示宽度 <code>POST /api/text/width</code></h3>
+      <p class="desc">终端表格对齐时，直接用 len() 会让中文列错位，这里给出真实占宽。</p>
+      <textarea data-arg="text" id="widthText" style="min-height:70px">中文abc</textarea>
+      <div class="out" data-out="width">—</div>
+      <div class="meta" data-meta="width:显示宽度,length:len() 长度"></div>
+      <div class="err" data-err></div>
+    </div>
+
+    <div class="card" data-tool data-ep="/api/text/slug">
+      <h3>生成 URL slug <code>POST /api/text/slug</code></h3>
+      <p class="desc">中文会被移除——拼音转换需要额外依赖，本库刻意不做。需要拼音请先过一遍 pypinyin。</p>
+      <input type="text" data-arg="text" id="slugText" value="Hello, Gitee! 开源 项目">
+      <div class="row" style="margin-top:10px">
+        <div class="narrow">
+          <label><b>最大长度</b></label>
+          <input type="number" data-arg="max_length" value="60" min="1" max="200">
+        </div>
+      </div>
+      <div class="out" data-out="result"></div>
+      <div class="err" data-err></div>
+    </div>
+
+  </section>
+
+  <!-- ===================== 脱敏 ===================== -->
+  <section class="page" id="page-mask">
+
+    <div class="card">
+      <div class="note" style="margin:0 0 12px">
+        <b>设计取舍：</b>格式不合法时<b>原样返回、不抛异常</b>。因为脱敏跑在日志和展示链路上，
+        一条脏数据不该打断整条请求。代价是你必须看 <code>valid</code> 字段才知道到底脱没脱成。
+      </div>
+    </div>
+
+    <div class="card" data-tool data-ep="/api/mask/phone">
+      <h3>手机号脱敏 <code>POST /api/mask/phone</code></h3>
+      <input type="text" data-arg="value" id="phoneVal" value="13812345678">
+      <div class="row" style="margin-top:10px">
+        <div class="narrow">
+          <label><b>保留前</b></label>
+          <input type="number" data-arg="keep_head" value="3" min="0" max="18">
+        </div>
+        <div class="narrow">
+          <label><b>保留后</b></label>
+          <input type="number" data-arg="keep_tail" value="4" min="0" max="18">
+        </div>
+      </div>
+      <div class="chips">
+        <span class="chip" data-fill="phoneVal" data-value="13812345678">标准</span>
+        <span class="chip" data-fill="phoneVal" data-value="138-1234-5678">带分隔符</span>
+        <span class="chip" data-fill="phoneVal" data-value="12345">非法（原样返回）</span>
+      </div>
+      <div class="out" data-out="result"></div>
+      <div class="meta" data-meta="valid:格式合法,masked:已脱敏"></div>
+      <div class="err" data-err></div>
+    </div>
+
+    <div class="card" data-tool data-ep="/api/mask/id-card">
+      <h3>身份证号脱敏 <code>POST /api/mask/id-card</code></h3>
+      <input type="text" data-arg="value" id="idVal" value="110101199003071234">
+      <div class="row" style="margin-top:10px">
+        <div class="narrow">
+          <label><b>保留前</b></label>
+          <input type="number" data-arg="keep_head" value="6" min="0" max="18">
+        </div>
+        <div class="narrow">
+          <label><b>保留后</b></label>
+          <input type="number" data-arg="keep_tail" value="4" min="0" max="18">
+        </div>
+      </div>
+      <div class="chips">
+        <span class="chip" data-fill="idVal" data-value="110101199003071234">末位数字</span>
+        <span class="chip" data-fill="idVal" data-value="11010119900307123X">末位 X</span>
+      </div>
+      <div class="out" data-out="result"></div>
+      <div class="meta" data-meta="valid:格式合法,masked:已脱敏"></div>
+      <div class="err" data-err></div>
+    </div>
+
+    <div class="card" data-tool data-ep="/api/mask/scan">
+      <h3>全文扫描脱敏 <code>POST /api/mask/scan</code></h3>
+      <p class="desc">从一段正文里捞出所有手机号与身份证号并打码。顺序是先身份证后手机号——
+        18 位身份证号里天然含 11 位连续数字，反了会被手机号规则拦腰截断。</p>
+      <textarea data-arg="text" id="scanText">用户 13812345678（身份证 110101199003071234）于 2026-10-20 登录；备用 13900001111。</textarea>
+      <div class="out" data-out="result"></div>
+      <div class="meta" data-meta="phone_count:手机号,id_card_count:身份证,total:合计"></div>
+      <div class="err" data-err></div>
+    </div>
+
+  </section>
+
+  <!-- ===================== 金额 ===================== -->
+  <section class="page" id="page-money">
+
+    <div class="card" data-tool data-ep="/api/money/rmb">
+      <h3>人民币转中文大写 <code>POST /api/money/rmb</code></h3>
+      <p class="desc">财务口径：先转 Decimal 再量化到分，四舍五入用 ROUND_HALF_UP。
+        <b>传字符串最安全</b>——直接传 float 会带进 0.1+0.2 那类误差。</p>
+      <input type="text" data-arg="amount" id="rmbVal" value="1234.56">
+      <div class="chips">
+        <span class="chip" data-fill="rmbVal" data-value="1234.56">标准</span>
+        <span class="chip" data-fill="rmbVal" data-value="100">整数</span>
+        <span class="chip" data-fill="rmbVal" data-value="1.05">角位为零</span>
+        <span class="chip" data-fill="rmbVal" data-value="-88.80">负数</span>
+        <span class="chip" data-fill="rmbVal" data-value="12345678901.23">亿级</span>
+        <span class="chip" data-fill="rmbVal" data-value="abc">非法（报错）</span>
+      </div>
+      <div class="out big" data-out="result"></div>
+      <div class="err" data-err></div>
+    </div>
+
+    <div class="card">
+      <div class="note" style="margin:0">
+        <b>和脱敏相反，金额解析失败会直接抛错。</b>
+        因为金额跑在财务链路上，静默吞掉一个解析错误，等于开错一张发票。
+        同样是「出错」，两条链路两种策略，这是刻意的设计。
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ===================== 批量 ===================== -->
+  <section class="page" id="page-batch">
+
+    <div class="card">
+      <h3>批量逐行转换 <code>POST /api/batch</code></h3>
+      <p class="desc">每行一行输入，逐行转换。单行失败不会中断整批，失败行标红并显示原因。</p>
+
+      <div class="row" style="margin-bottom:10px">
+        <div style="flex:1 1 200px">
+          <label><b>转换函数</b></label>
+          <select id="batchFn">
+            <option value="phone">phone · 手机号脱敏</option>
+            <option value="id-card">id-card · 身份证脱敏</option>
+            <option value="rmb">rmb · 人民币大写</option>
+            <option value="scan">scan · 全文扫描脱敏</option>
+            <option value="truncate">truncate · 按宽度截断</option>
+            <option value="slug">slug · 生成 slug</option>
+            <option value="count">count · 字数统计</option>
+            <option value="width">width · 显示宽度</option>
+          </select>
+        </div>
+        <div class="narrow" id="optWidth" style="display:none">
+          <label><b>宽度</b></label>
+          <input type="number" id="batchWidth" value="10" min="1" max="10000">
+        </div>
+        <div class="narrow" id="optHead" style="display:none">
+          <label><b>保留前</b></label>
+          <input type="number" id="batchHead" value="3" min="0" max="18">
+        </div>
+        <div class="narrow" id="optTail" style="display:none">
+          <label><b>保留后</b></label>
+          <input type="number" id="batchTail" value="4" min="0" max="18">
+        </div>
+      </div>
+
+      <textarea id="batchIn" style="min-height:150px">13812345678
+13900001111
+138-1234-5678
+12345
+18888888888</textarea>
+
+      <div class="chips" style="margin-bottom:10px">
+        <span class="chip" data-batch-fill="phones">手机号样例</span>
+        <span class="chip" data-batch-fill="ids">身份证样例</span>
+        <span class="chip" data-batch-fill="money">金额样例</span>
+        <span class="chip" data-batch-fill="logs">日志样例</span>
+      </div>
+
+      <div class="row" style="flex-wrap:nowrap">
+        <button class="btn primary" id="batchRun" style="flex:0 0 auto">转换</button>
+        <button class="btn" id="batchCopy" style="flex:0 0 auto">复制结果</button>
+        <button class="btn" id="batchCsv" style="flex:0 0 auto">导出 CSV</button>
+        <span id="batchMeta" style="flex:1 1 auto;font-size:13px;color:var(--muted);align-self:center"></span>
+      </div>
+
+      <div class="err" id="batchErr"></div>
+      <div id="batchResult"></div>
+    </div>
+
+  </section>
+
+  <!-- ===================== API 文档 ===================== -->
+  <section class="page" id="page-api">
+    <div class="card">
+      <h3>接口清单 <code>GET /api/functions</code></h3>
+      <p class="desc">这份清单由服务端实时生成，接口改了这里就跟着变，不会和代码脱节。</p>
+      <div id="apiList"></div>
+      <div class="note">
+        <b>直接调用：</b>所有接口都是 POST + JSON，响应统一为
+        <code>{"ok": true, "data": {...}}</code>；出错时为
+        <code>{"ok": false, "error": {"code": ..., "message": ...}}</code>。
+        完整 OpenAPI 文档在 <code>GET /api/openapi.json</code>。
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  pystrkit-web · 后端 Python 标准库 http.server · 前端原生 JS · 无第三方依赖
+</footer>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
